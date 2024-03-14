@@ -16,8 +16,8 @@ This is a Node.js backend for managing todo task of Marta using Firebase Realtim
     
 2. Install dependencies:
     - npm install
-    
-3. Set up Firebase:
+     
+3. Set up Firebase: ( I HAVE ALREADY DID THAT PART YOU DO NOT HAVE TO DO IT )
     - Go to the Firebase console: https://console.firebase.google.com/
     - Create a new project or use an existing one.
     - Navigate to the "Project settings" and find your Firebase project configuration.
