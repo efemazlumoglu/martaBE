@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { initializeApp, database } = require('firebase/app');
+const { initializeApp } = require('firebase/app');
+const { getDatabase, ref, once, child, get, push } = require('firebase/database');
 const firebaseConfig = {
     apiKey: "AIzaSyCR8yWbCeLDNT6TcWhQRD7zUBg4F9Uwi6s",
     authDomain: "martatodotask.firebaseapp.com",
@@ -12,17 +13,23 @@ const firebaseConfig = {
     measurementId: "G-2GG5K0B9VW"
   };
 initializeApp(firebaseConfig);
-
+const db = getDatabase();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
-app.get('/tasks/:userId', async (res) => {
+app.get('/tasks/:userId', async (req, res) => {
     try {
-      const snapshot = await database().ref(`${userId}/tasks`).once('value');
-      const tasks = snapshot.val();
-      res.json(tasks);
+      const userId = req.params.userId;
+      if (!userId) {
+          return res.status(400).json({ error: 'User ID is undefined' });
+      } else {
+        const snapshot = await get(child(ref(db), `tasks/${userId}/tasks`));
+        const tasks = snapshot.val();
+        console.log('fetching tasks are working');
+        res.json(tasks);
+      }
     } catch (error) {
       console.error('Error fetching tasks:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -31,9 +38,10 @@ app.get('/tasks/:userId', async (res) => {
   
 app.post('/tasks/:userId', async (req, res) => {
     try {
+      const userId = req.params.userId;
       const taskData = req.body;
-      await database().ref(`${userId}/tasks`).push(taskData);
-      res.json({ message: 'Task added successfully' });
+      const snapshot = await push(child(ref(db), `tasks/${userId}/tasks`), taskData);
+      res.status(200).json({ message: 'Task added successfully' });
     } catch (error) {
       console.error('Error adding task:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -64,5 +72,5 @@ app.delete('/tasks/:userId/:taskId', async (req, res) => {
 });
   
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT} \n http://localhost:3000`);
 });
