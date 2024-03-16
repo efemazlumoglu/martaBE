@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { initializeApp } = require('firebase/app');
-const { getDatabase, ref, once, child, get, push, update } = require('firebase/database');
+const { getDatabase, ref, once, child, get, push, update, remove } = require('firebase/database');
 const firebaseConfig = {
     apiKey: "AIzaSyCR8yWbCeLDNT6TcWhQRD7zUBg4F9Uwi6s",
     authDomain: "martatodotask.firebaseapp.com",
@@ -64,8 +64,9 @@ app.put('/tasks/:userId/:taskId', async (req, res) => {
   
 app.delete('/tasks/:userId/:taskId', async (req, res) => {
     try {
-      const { taskId } = req.params;
-      await database().ref(`${userId}/tasks/${taskId}`).remove();
+      const taskId = req.params.taskId;
+      const userId = req.params.userId;
+      const snapshot = await remove(child(ref(db),`tasks/${userId}/tasks/${taskId}`));
       res.json({ message: 'Task deleted successfully' });
     } catch (error) {
       console.error('Error deleting task:', error);
