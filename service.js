@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { initializeApp } = require('firebase/app');
-const { getDatabase, ref, once, child, get, push } = require('firebase/database');
+const { getDatabase, ref, once, child, get, push, update } = require('firebase/database');
 const firebaseConfig = {
     apiKey: "AIzaSyCR8yWbCeLDNT6TcWhQRD7zUBg4F9Uwi6s",
     authDomain: "martatodotask.firebaseapp.com",
@@ -50,9 +50,11 @@ app.post('/tasks/:userId', async (req, res) => {
   
 app.put('/tasks/:userId/:taskId', async (req, res) => {
     try {
-      const { taskId } = req.params;
+      const taskId = req.params.taskId;
+      const userId = req.params.userId;
       const taskData = req.body;
-      await database().ref(`${userId}/tasks/${taskId}`).update(taskData);
+      console.log(taskId);
+      const snapshot = await update(child(ref(db),`tasks/${userId}/tasks/${taskId}`), taskData);
       res.json({ message: 'Task updated successfully' });
     } catch (error) {
       console.error('Error updating task:', error);
