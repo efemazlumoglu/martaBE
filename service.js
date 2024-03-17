@@ -7,6 +7,7 @@ const { initializeApp } = require('firebase/app');
 const { getDatabase, ref, once, child, get, push, update, remove } = require('firebase/database');
 const { getStorage, ref: storageRef, uploadBytes, getDownloadURL } = require('firebase/storage');
 
+//TODO: add them inside env file when it is going to be inside production.
 const firebaseConfig = {
     apiKey: "AIzaSyCR8yWbCeLDNT6TcWhQRD7zUBg4F9Uwi6s",
     authDomain: "martatodotask.firebaseapp.com",
@@ -61,6 +62,7 @@ app.post('/tasks/:userId', async (req, res) => {
     try {
       const userId = req.params.userId;
       const taskData = req.body;
+      const taskId = taskData.taskId;
       const snapshot = await push(child(ref(db), `tasks/${userId}/tasks`), taskData);
       if (taskData.taskImage || taskData.taskImage !== '') {
         const response = await uploadImageToStorage(taskData.taskImage.replace(/^file:\/\//, ''), userId, taskId);
