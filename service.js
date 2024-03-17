@@ -32,7 +32,6 @@ const uploadImageToStorage = async (filePath, userId, taskId) => {
       const imageData = fs.readFileSync(filePath);
       const storageRefPath = `tasks/${userId}/${taskId}/uploadedImage`;
       const upload = await uploadBytes(storageRef(storage, storageRefPath), imageData, { contentType: 'image/jpeg' });
-      console.log('file data:', upload);
       return upload;
   } catch (error) {
       console.error('Error uploading image:', error);
@@ -50,7 +49,6 @@ app.get('/tasks/:userId', async (req, res) => {
       } else {
         const snapshot = await get(child(ref(db), `tasks/${userId}/tasks`));
         const tasks = snapshot.val();
-        console.log('fetching tasks are working');
         res.json(tasks);
       }
     } catch (error) {
@@ -63,10 +61,8 @@ app.post('/tasks/:userId', async (req, res) => {
     try {
       const userId = req.params.userId;
       const taskData = req.body;
-      console.log(taskId);
-      console.log(taskData.taskImage);
       const snapshot = await push(child(ref(db), `tasks/${userId}/tasks`), taskData);
-      if (taskData.taskImage) {
+      if (taskData.taskImage || taskData.taskImage !== '') {
         const response = await uploadImageToStorage(taskData.taskImage.replace(/^file:\/\//, ''), userId, taskId);
       }
       res.status(200).json({ message: 'Task added successfully' });
@@ -81,10 +77,9 @@ app.put('/tasks/:userId/:taskId', async (req, res) => {
       const taskId = req.params.taskId;
       const userId = req.params.userId;
       const taskData = req.body;
-      console.log(taskId);
-      console.log(taskData.taskImage);
+      console.log('task image', taskData.taskImage);
       const snapshot = await update(child(ref(db),`tasks/${userId}/tasks/${taskId}`), taskData);
-      if (taskData.taskImage) {
+      if (taskData.taskImage || taskData.taskImage !== '') {
         const response = await uploadImageToStorage(taskData.taskImage.replace(/^file:\/\//, ''), userId, taskId);
       }
       res.json({ message: 'Task updated successfully' });
